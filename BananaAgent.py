@@ -8,7 +8,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from DQNAgent import DQNAgent
 from ReplayBuffer import ReplayBuffer
 
 
@@ -117,39 +116,6 @@ class Agent:
 
     def agent_name(self):
         return self.__class__.__name__
-
-class Udagent(Agent):
-    def __init__(self, state_size, action_size, gamma=1, alpha=0.1, seed=-1) -> None:
-        super().__init__(state_size, action_size, gamma, alpha, seed)
-
-        self.agent = DQNAgent(state_size, action_size, self.seed, QModel)
-        self.last_state = None
-        self.last_action = None
-        
-    def start(self, state):
-        self.last_state = state
-        self.last_action = self.agent.act(state, self.epsilon)
-
-        return self.last_action
-
-    def step(self, reward, state):
-        self.agent.step(self.last_state, self.last_action, reward, state, False)
-        self.last_action = self.agent.act(state, self.epsilon)
-        return self.last_action
-
-    def end(self, reward):
-        self.agent.step(self.last_state, self.last_action, reward, self.last_state, True)
-        self.epsilon = max(self.epsilon * 0.999, self.epsilon_min)
-    
-    def __getstate__(self):
-        # Ignore the memory data
-        state = self.__dict__.copy()
-        state["agent"].memory = None
-        return state
-    
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self.agent.memory = DQNAgent.create_memory(self.action_size, self.seed)
 
 
 class BananaAgent(Agent):
@@ -281,12 +247,9 @@ class BananaAgentDouble(BananaAgent):
         s, a, r, s_i, dones = self.memory.sample()
 
         # Predict using target network
-        with torch.no_grad():
-            # Q_argmax = self.q_local(s_i).detach().argmax(1).unsqueeze(1)
-            # Q_max = self.q_target(s_i).detach().gather(1, Q_argmax)
-            Q_argmax = self.q_local(s_i).argmax(1).unsqueeze(1)
-            Q_max = self.q_target(s_i).gather(1, Q_argmax)
-            target = r + self.gamma * Q_max * (1 - dones)
+        Q_argmax = self.q_local(s_i).detach().argmax(1).unsqueeze(1)
+        Q_max = self.q_target(s_i).detach().gather(1, Q_argmax)
+        target = r + self.gamma * Q_max * (1 - dones)
         
         # Get expected values with local network
         expected = self.q_local(s).gather(1, a)

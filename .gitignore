@@ -161,3 +161,6 @@ cython_debug/
 
 # Additional files
 Banana/
+*.log
+*.bkp
+*.dtmp

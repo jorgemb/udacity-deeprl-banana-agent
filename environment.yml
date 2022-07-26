@@ -8,4 +8,5 @@ dependencies:
   - pip
   - pip:
     - ./python/
+    - wandb
   - seaborn
