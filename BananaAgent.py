@@ -1,13 +1,13 @@
 # Agent to solve the Banana problem
-from abc import abstractmethod
-from os import urandom
-import numpy as np
 import random
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+from Agent import Agent
 from ReplayBuffer import ReplayBuffer
 
 
@@ -34,98 +34,13 @@ class QModel(nn.Module):
         
         return x
 
-class Agent:
-    def __init__(self, state_size, action_size, gamma=1.0, alpha=0.1, seed=-1) -> None:
-        """ Initializes the Agent with environment information and hyperparameters
-
-        Args:
-            space_size (int): Size of the state space
-            action_size (int): Size of the action space
-            gamma (float, optional): Discount rate. Defaults to 1.0.
-            alpha (float, optional): Learning rate. Defaults to 0.1.
-            seed (int, optional): Seed. If -1 then a random seed is used.
-        """
-        self.space_size = state_size
-        self.action_size = action_size
-
-        self.gamma = gamma
-        self.alpha = alpha
-
-        self.epsilon = 1.0
-        self.epsilon_min = 0.05
-
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        # self.device = "cpu"
-
-        if(seed != -1):
-            random.seed(seed)
-        else:
-            seed = int.from_bytes(urandom(4), byteorder="little")
-            random.seed(seed)
-        self.seed = seed
-
-
-    @abstractmethod
-    def start(self, state):
-        """Marks the start of an episode with the initial state. Returns the initial action.
-
-        Args:
-            state (array_like): Initial state
-
-        Returns:
-            int: Initial action
-        """
-        pass
-
-    @abstractmethod
-    def step(self, reward, state):
-        """Performs a step in the simulation, provides the reward of the last action and the next state.
-
-        Args:
-            reward (float): Reward from previous action
-            state (array_like): New state
-
-        Returns:
-            int: Next action
-        """
-        pass
-
-    @abstractmethod
-    def end(self, reward):
-        """Finishes an episode, provides the last reward that was provided.
-
-        Args:
-            reward (float): Reward from previous action
-        """
-        pass
-
-    @abstractmethod
-    def __getstate__(self):
-        """Return a state for pickling
-        """
-        pass
-
-    @abstractmethod
-    def __setstate__(self, state):
-        """Restores the instance attributes from a state
-
-        Args:
-            state (dict): Dictionary of elements
-        """
-        pass
-
-    def agent_name(self):
-        return self.__class__.__name__
-
 
 class BananaAgent(Agent):
     """Agent for traversing through the Banana environment using vanilla DQN with MemoryReplay
     """
-    def __init__(self, state_size, action_size, gamma=1, alpha=0.1, seed=-1, tau=1e-3, buffer_size=int(1e5), batch_size=64, learn_every=4) -> None:
-        super().__init__(state_size, action_size, gamma, alpha, seed)
-    
-        self.last_state = None
-        self.last_action = None
+    def __init__(self, state_size, action_size, *, 
+                 gamma=1, alpha=0.1, seed=-1, tau=1e-3, buffer_size=int(1e5), batch_size=64, learn_every=4, **kwargs) -> None:
+        super().__init__(state_size, action_size, gamma=gamma, alpha=alpha, seed=seed, **kwargs)
 
         self.tau = tau
         self.buffer_size = buffer_size
@@ -141,6 +56,10 @@ class BananaAgent(Agent):
         
         # Replay memory
         self.memory = ReplayBuffer(self.action_size, self.buffer_size, self.batch_size, self.device, self.seed)
+        
+        # Last states and actions
+        self.last_state = None
+        self.last_action = None
     
     def start(self, state):
         self.last_state = state
@@ -235,8 +154,8 @@ class BananaAgent(Agent):
 class BananaAgentDouble(BananaAgent):
     """Implements a BananaAgent using Double Q-Learning
     """
-    def __init__(self, state_size, action_size, gamma=1, alpha=0.1, seed=-1, tau=0.001, buffer_size=int(100000), batch_size=64, learn_every=4) -> None:
-        super().__init__(state_size, action_size, gamma, alpha, seed, tau, buffer_size, batch_size, learn_every)
+    def __init__(self, state_size, action_size, **kwargs) -> None:
+        super().__init__(state_size, action_size, **kwargs)
         
     def learning_step(self):
         # Check that memory has enough data
