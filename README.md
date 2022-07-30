@@ -17,7 +17,7 @@ in it: blue and yellow.
 ![Environment view](img/environment.png)
 
 The agent receives a positive reward each time it grabs a yellow banana and a negative 
-reward each times it grabs a blue one. Additionally, the agent is given a time limit for this. 
+reward each time it grabs a blue one. Additionally, the agent is given a time limit for this. 
 The agent can interact with the environment taking one of four actions:
 
 1. Move forward
@@ -27,7 +27,7 @@ The agent can interact with the environment taking one of four actions:
 
 Each event where the agent starts interacting with the environment until the time ends
 it's called an **episode**. With this, the main goal is to write an agent that can learn
-from this interaction with the environment and to maximize the amount of yellow bananas it can
+from this interaction with the environment and to maximize the number of yellow bananas it can
 grab before the episode ends. To this end, the following conditions should be met:
 
 
@@ -55,9 +55,13 @@ conda activate drlnd
 jupyter notebook
 ```
 
-If a web browser window is not open automatically the output of the command should show a URL
+If a web browser window is not automatically open the output of the command should show a URL
 that can be copied and pasted in a web browser. On this interface
-select `Navigation.ipynb` to see the results, or run it to train the agents from scratch.
+select `Navigation.ipynb` to see the results or run it to train the agents from scratch.
+
+Here you can watch the video of the best agent:
+
+[![Best agent video](https://i.ytimg.com/vi/-AJxLCeJHfU/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBhGU3enYTMX8lgEZWB5Wn0UdJ7XQ)](https://youtu.be/-AJxLCeJHfU)
 
 ## Training the agent
 

@@ -4,20 +4,20 @@ By: Jorge L. Martínez
 
 ## Learning algorithm
 
-The learning agent is faced with a space that has continuous dimensions. This means that it is not
-feasible to use tabular methods to train it, as the amount of different states would be to big (or infinite)
+The learning agent is faced with a space that has continuous dimensions, which would mean that it is not
+feasible to use tabular methods to train it, as the number of different states would be too big (or infinite)
 to solve efficiently. This way a value-based method is required. 
 
-For this project the Deep Q-Learning method was used as discussed in [Human-level control through deep reinforcement learning](https://www.nature.com/articles/nature14236).
+For this project, the Deep Q-Learning method was used as discussed in [Human-level control through deep reinforcement learning](https://www.nature.com/articles/nature14236).
 Additionally, the algorithm was fitted to follow the elements described in [Deep Reinforcement Learning with Double Q-Learning](https://arxiv.org/abs/1509.06461v3).
 
 The main idea behind these papers is to leverage the use of neural networks to approximate the action-value function:
 
 $$
-q_\pi(s, a) \doteq \mathbb{E} \lbrack G_t | S_t=s, A_t=a \rbrack \forall s \in \mathcal{S} \land a \in \mathcal{A}(s)
+q_\pi(s, a) \doteq \mathbb{E} \lbrack G_t | S_t=s, A_t=a \rbrack \; \forall \; s \in \mathcal{S} \land a \in \mathcal{A}(s)
 $$
 
-But, because the amount of states is too big, the function is approximated via an extra parameter $ \theta $. So the function being approximated looks like:
+But, because the number of states is too big, the function is approximated via an extra parameter $ \theta $. So, the function being approximated looks like:
 
 $$ Q_\pi(s, a, \theta) \approx q_\pi(s, a) \; \mathrm{where} \; \| \theta \| \llless \| \mathcal{S} \| $$ 
 
@@ -27,7 +27,7 @@ get the approximate value for all $ a \in \mathcal{A}(s) $ in a single call.
 For this purpose, the neural network should have an input as big as the state space
 (37 values) and an output as big as the action space (4 values). 
 
-<!-- ![Neural network model](img/model.png) -->
+![Neural network model](img/model.png)
 
 ### Double DQN explained
 
@@ -35,15 +35,15 @@ To understand the algorithm being used we have to start with the formula for Q-L
 
 $$ Q(S_t, A_t, \theta) \gets Q(S_t, A_t, \theta) + \alpha \lbrack R_{t+1} + \gamma \, \mathrm{max}_a Q(S_{t+1}, a, \theta) - Q(S_t, A_t, \theta) \rbrack $$
 
-By this, the agent tries to approximate de action-value of a given state based on the action-value of the "best" next state.
+The agent tries to approximate de action-value of a given state based on the action-value of the "best" next state.
 This "best" is given by the action that provides the highest action-value.
 
-With Deep Q-Learning (DQN), the neural network is the one that approximates this value. Nonetheless, from the insight given in the
-first paper mentioned, the use of two neural networks is proposed (both with the same architecture): target and local. The intuition
+With Deep Q-Learning (DQN), a neural network is used to approximate this value. Nonetheless, from the insight given in the
+first paper mentioned, the use of two neural networks is proposed (both with the same architecture): **target** and **local**. The intuition
 for this is that value that is bootstraped, from $ Q(S_{t+1}, a) $, becomes a moving target if at the same time the network is
-being updated. This is because, each time that a neural network is updated the action-value inference is updated for several states,
+being updated. Each time that a neural network is updated the action-value inference is updated for several states,
 making learning unstable. By separating the neural network that is being updated from the one that makes the inference it is possible
-to facilitate the convergence of the training.
+to help to training convergence.
 
 
 $$ Q(S_t, A_t, \theta) \gets Q(S_t, A_t, \theta) + \alpha \lbrack R_{t+1} + \gamma \, \mathrm{max}_a Q(S_{t+1}, a, \theta^-) - Q(S_t, A_t, \theta) \rbrack $$
@@ -52,18 +52,18 @@ The network using the $ \theta^- $ is the target network, while the one being up
 from the local network the target network would be updated with the weights. A factor $ \tau $ is proposed to soften the weight copying
 followint this formula:
 
-$$ \theta^- \gets \tau \theta + (1-\tau) \ theta^- $$
+$$ \theta^- \gets \tau \theta + (1-\tau) \theta^- $$
 
 Then, the network wouldn't learn directly from each experience but would store the interactions in a memory buffer. Every n steps the
 agent would take a sample from this memory and apply the learning algorithm to the local neural network. Both the size of the memory
-buffer and the size of the sample (batch) would become additional parameters to tweak.
+buffer and the size of the sample (batch) are additional parameters to tweak.
 
 Finally, the Double DQN paper proposes the further separation in the actual $ \mathrm{max}_a Q(...) $ in the two parts that compose it:
 
 - Selecting $ a $ that follows $ \mathrm{argmax}_a Q(s, a, \theta) $
 - Then getting the value of $ a $ from the network
 
-So the final formula looks like:
+So, the final formula looks like:
 
 
 $$
@@ -85,7 +85,7 @@ The hyperparameters that can be tweaked are:
 - learn_every : How many steps to wait before doing a learning step
 - algorightm: DQN vs Double DQN
 
-For this (Weights & Biases)[https://wandb.ai] was used to control the hyperparameter selection and tweaking. For the first run several
+For this [Weights & Biases](https://wandb.ai) was used to control the hyperparameter selection and tweaking. For the first run several
 agents were trained for 500 steps, taking the best for the longer run sweep. These are the results of this first run:
 
 ![WandB first sweep](img/first_sweep.png)
