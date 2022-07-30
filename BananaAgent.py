@@ -118,13 +118,13 @@ class BananaAgent(Agent):
         for target_param, local_param in zip(self.q_target.parameters(), self.q_local.parameters()):
             target_param.data.copy_(self.tau * local_param.data + (1.0 - self.tau)*target_param.data)
 
-    def step(self, reward, state):
+    def step(self, reward, state, learn=True):
         # Add experience
         self.memory.add(self.last_state, self.last_action, reward, state, False)
         self.steps += 1
 
         # See if the agent should update
-        if self.steps % self.learn_every == 0:
+        if learn and self.steps % self.learn_every == 0:
             # Learning step
             self.learning_step()
        

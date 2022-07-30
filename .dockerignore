@@ -1,0 +1,6 @@
+__pycache__/
+.ipynb_checkpoints/
+agents/
+wandb/
+!wandb/settings
+.git/

@@ -59,3 +59,15 @@ If a web browser window is not open automatically the output of the command shou
 that can be copied and pasted in a web browser. On this interface
 select `Navigation.ipynb` to see the results, or run it to train the agents from scratch.
 
+## Training the agent
+
+The agent is trained with the help of the `Weights & Biases` interface. For such it uses
+the `config-defaults.yaml` file to store the training parameters. To run a training
+session just run the following:
+
+``` sh
+wandb off
+python train.py
+```
+
+This will disable synchronization to the server and do a single training session.
